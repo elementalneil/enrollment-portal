@@ -37,6 +37,9 @@ class Admin:
         res = cursor.execute('SELECT * FROM Admin WHERE id = ?', (admin_id, ))
         row = res.fetchone()
 
+        cursor.close()
+        connection.close()
+
         if row != None:
             password = bytes(password, 'utf-8')
             if(bcrypt.checkpw(password, row[1])):
@@ -45,6 +48,65 @@ class Admin:
                 return 'Incorrect Password'
         else:
             return 'Incorrect Username'
+        
+
+    def create_department(self, dept_data):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        if 'hod_id' in dept_data:
+            cursor.execute('INSERT INTO Department VALUES (?, ?, ?)', 
+                           (dept_data['did'], dept_data['dname'], dept_data['hod_id']))
+        else:
+            cursor.execute('INSERT INTO Department(did, dname) VALUES (?, ?)', 
+                           (dept_data['did'], dept_data['dname']))
+            
+        connection.commit()
+        cursor.close()
+        connection.close()
+            
+
+    def return_departments(self):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Department')
+        data = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return data
+
+
+
+def post_login(admin_obj):
+    if admin_obj is None:
+        return
+    
+    choice = int(input('''Admin Options: 
+                       Press 1 to Create Department
+                       Press 2 to View Departments
+                       Press 3 to Exit
+                       Enter Choice: '''))
+    
+    if choice == 1:
+        print('\nEnter Details')
+        dept_data = {}
+        dept_data['did'] = input('Enter Department Id: ')
+        dept_data['dname'] = input('Enter Department Name: ')
+
+        admin_obj.create_department(dept_data)
+
+    elif choice == 2:
+        data = admin_obj.return_departments()
+        print(data)
+
+    else:
+        print('Aborted by User')
+        return
+
+    
 
 
 def __main__():
@@ -53,7 +115,7 @@ def __main__():
     choice1 = input('Press 1 to Register, 2 to Login or anything else to Exit: ')
 
     if choice1 == '1':
-        print('Admin Register: ')
+        print('Admin Register')
         admin_data['id'] = input('Enter id: ')
         admin_data['password'] = input('Password: ')
         cnf_pw = input('Confirm Password: ')
@@ -68,6 +130,7 @@ def __main__():
             if choice == 'Y' or choice == 'y':
                 if admin.register(admin_data):
                     print('Succesfully Registered')
+                    post_login(admin)
                 else:
                     print('Admin is Already Registered')
             else:
@@ -76,12 +139,16 @@ def __main__():
             print('Password should match Confirm Password')
 
     elif choice1 == '2':
-        print('Admin Login:')
+        print('Admin Login')
         admin_id = input('Admin Id: ')
         password = input('Password: ')
 
         admin = Admin()
-        print(admin.admin_login(admin_id, password))
+        login_status = admin.admin_login(admin_id, password)
+        print(login_status)
+
+        if login_status == "Successfully Logged In":
+            post_login(admin)
 
     else:
         print('Aborted by User')
