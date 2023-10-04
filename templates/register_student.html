@@ -57,6 +57,7 @@
 </head>
 <body>
     <div class="container">
+        <p>Are you a professor? <a href="{{ url_for('register_faculty') }}">Faculty Register</a></p>
         <h2>Student Signup</h2>
         {% if error %}
             <div class = "error_message"><p>{{ error }}</p></div>

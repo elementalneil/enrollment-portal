@@ -55,7 +55,7 @@
         {% if 'id' in session %}
             <span>Welcome, {{ session['username'] }}!</span><a href="/logout">Logout</a>
         {% else %}
-            <a href="{{ url_for('login_faculty') }}">Login</a><a href="{{ url_for('register_faculty') }}">Register</a>
+            <a href="{{ url_for('login_student') }}">Login</a><a href="{{ url_for('register_student') }}">Register</a>
         {% endif %}
     </div>
 </div>
