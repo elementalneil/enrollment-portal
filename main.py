@@ -3,6 +3,7 @@ from flask import request, redirect, render_template, url_for, session
 
 from db_init import initialize
 from faculty_functionality import Faculty
+from admin_functionality import Admin
 
 app = Flask(__name__)
 app.secret_key = b'F#%JGTs@WjzHGGLSidT6ZVz9'
@@ -12,6 +13,27 @@ initialize()
 @app.route("/")
 def index():
     return render_template('index.html')
+
+
+@app.route("/login_admin", methods=['GET', 'POST'])
+def login_admin():
+    admin = Admin()
+
+    error = None
+    if request.method == 'POST':
+        admin_id = request.form['username']
+        password = request.form['password']
+
+        return_message = admin.admin_login(admin_id, password)
+        if return_message == 'Successfully Logged In':
+            session['id'] = admin_id
+            session['user_type'] = 'faculty'
+            session['username'] = admin.get_details(admin_id)[2]      # 2nd index contains fname
+            return redirect(url_for('index'))
+        else:
+            error = return_message
+
+    return render_template('login_admin.html', error = error)
 
 
 @app.route("/register_faculty", methods=['GET', 'POST'])

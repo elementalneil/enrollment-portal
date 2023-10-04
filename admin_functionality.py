@@ -50,6 +50,19 @@ class Admin:
             return 'Incorrect Username'
         
 
+    def get_details(self, admin_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Admin WHERE id = ?', (admin_id, ))
+        row = res.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        return row
+        
+
     def create_department(self, dept_data):
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
