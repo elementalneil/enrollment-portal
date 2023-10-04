@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import request, redirect, render_template, url_for
+from flask import request, redirect, render_template, url_for, session
 
 from db_init import initialize
 from faculty_functionality import Faculty
@@ -36,6 +36,9 @@ def register_faculty():
         else:
             return_message = faculty.register(data)
             if return_message == "Successfully Registered":
+                session['id'] = data['id']
+                session['user_type'] = 'faculty'
+                session['username'] = data['fname']
                 return redirect(url_for('index'))
             else:
                 error = return_message
@@ -54,8 +57,17 @@ def login_faculty():
 
         return_message = faculty.faculty_login(faculty_id, password)
         if return_message == 'Successfully Logged In':
+            session['id'] = faculty_id
+            session['user_type'] = 'faculty'
+            session['username'] = faculty.get_details(faculty_id)[2]      # 2nd index contains fname
             return redirect(url_for('index'))
         else:
             error = return_message
 
     return render_template('login_faculty.html', error = error)
+
+
+@app.route("/logout")
+def logout():
+    session.pop('id')
+    return redirect(url_for('index'))

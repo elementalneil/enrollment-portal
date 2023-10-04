@@ -73,3 +73,16 @@ class Faculty:
         connection.close()
 
         return data
+    
+
+    def get_details(self, faculty_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Faculty WHERE id = ?', (faculty_id, ))
+        row = res.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        return row
