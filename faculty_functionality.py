@@ -6,15 +6,24 @@ class Faculty:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
-        cursor.execute('SELECT id FROM Faculty')
+        cursor.execute('SELECT id, email FROM Faculty')
 
         rows = cursor.fetchall()
         id_values = [row[0] for row in rows]
+        email_values = [row[1] for row in rows]
+
+        cursor.execute('SELECT did FROM Department')
+        rows = cursor.fetchall()
+        did_values = [row[0] for row in rows]
+
+        return_message = ""
 
         if faculty_data['id'] in id_values:
-            cursor.close()
-            connection.close()
-            return False
+            return_message = "Faculty Already Registered"
+        elif faculty_data['email'] in email_values:
+            return_message = "Email is Already Registered"
+        elif faculty_data['department_id'] not in did_values:
+            return_message = "Department does not Exist"
         else:
             password = bytes(faculty_data['password'], 'utf-8')
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -26,10 +35,12 @@ class Faculty:
             ))
 
             connection.commit()
+            return_message = "Successfully Registered"
 
-            cursor.close()
-            connection.close()
-            return True
+        cursor.close()
+        connection.close()
+        return return_message
+            
         
     def faculty_login(self, faculty_id, password):
         connection = sqlite3.connect("Server.db")
@@ -37,6 +48,9 @@ class Faculty:
 
         res = cursor.execute('SELECT * FROM Faculty WHERE id = ?', (faculty_id, ))
         row = res.fetchone()
+
+        cursor.close()
+        connection.close()
 
         if row != None:
             password = bytes(password, 'utf-8')
@@ -46,3 +60,16 @@ class Faculty:
                 return 'Incorrect Password'
         else:
             return 'Incorrect Username'
+        
+
+    def return_departments(self):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Department')
+        data = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return data
