@@ -86,3 +86,16 @@ class Faculty:
         connection.close()
 
         return row
+    
+
+    def get_faculty_list(self, department_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Faculty WHERE department_id = ?', (department_id, ))
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return rows

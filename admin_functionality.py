@@ -90,7 +90,32 @@ class Admin:
         connection.close()
 
         return data
+    
 
+    def promote_to_hod(self, faculty_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT department_id FROM Faculty WHERE id = ?', (faculty_id, ))
+        department_id = res.fetchone()[0]
+
+        print(department_id)
+
+        return_val = False
+        if faculty_id != None:
+            res = cursor.execute('UPDATE Department SET hod_id = ? WHERE did = ?', (faculty_id, department_id))
+            return_val = True
+            connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return return_val
+    
+
+    # elevates a faculty with give faculty_id to hod of the given batch
+    def elevate_faculty(self, faculty_id, batch):
+        return False
 
 
 def post_login(admin_obj):
@@ -100,7 +125,8 @@ def post_login(admin_obj):
     choice = int(input('''Admin Options: 
                        Press 1 to Create Department
                        Press 2 to View Departments
-                       Press 3 to Exit
+                       Press 3 to Create a Faculty Advisor
+                       Press 4 to Exit
                        Enter Choice: '''))
     
     if choice == 1:
@@ -114,6 +140,14 @@ def post_login(admin_obj):
     elif choice == 2:
         data = admin_obj.return_departments()
         print(data)
+
+    elif choice == 3:
+        print('\nEnter Details')
+        faculty_id = input('Enter Faculty Id: ')
+        batch = input('Enter Batch Year: ')
+
+        result = admin_obj.elevate_faculty(faculty_id, batch)
+        print(result)
 
     else:
         print('Aborted by User')

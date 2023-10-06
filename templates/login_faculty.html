@@ -8,6 +8,10 @@
             background-color: #f2f2f2;
             margin: 0;
             padding: 0;
+            
+        }
+
+        .outer-container {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -62,27 +66,30 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        {% include 'slider.html' %}
-        
-        <h1>Faculty Login</h1>
-        {% if error %}
-            <div class = "error_message"><p>{{ error }}</p></div>
-        {% endif %}
-        <form method="POST" action="#">
-            <div class="form-group">
-                <label for="username">Faculty ID:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="submit-button">Login</button>
-            </div>
-        </form>
-        <p>Don't have an account? <a href="{{ url_for('register_faculty') }}">Register</a></p>
+    {% include 'navbar.html' %}
+    <div class="outer-container">
+        <div class="container">
+            {% include 'slider.html' %}
+            
+            <h1>Faculty Login</h1>
+            {% if error %}
+                <div class = "error_message"><p>{{ error }}</p></div>
+            {% endif %}
+            <form method="POST" action="#">
+                <div class="form-group">
+                    <label for="username">Faculty ID:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="submit-button">Login</button>
+                </div>
+            </form>
+            <p>Don't have an account? <a href="{{ url_for('register_faculty') }}">Register</a></p>
+        </div>
     </div>
 </body>
 </html>

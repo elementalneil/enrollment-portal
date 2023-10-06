@@ -6,6 +6,7 @@ from faculty_functionality import Faculty
 from admin_functionality import Admin
 from student_functionality import Student
 
+
 app = Flask(__name__)
 app.secret_key = b'F#%JGTs@WjzHGGLSidT6ZVz9'
 
@@ -15,6 +16,8 @@ initialize()
 def index():
     return render_template('index.html')
 
+
+##### AUTH PAGES #####
 
 @app.route("/login_admin", methods=['GET', 'POST'])
 def login_admin():
@@ -148,3 +151,47 @@ def login_student():
 def logout():
     session.pop('id')
     return redirect(url_for('index'))
+
+
+##### CORE FUNCTIONALITY #####
+
+@app.route('/admin_dash')
+def admin_dash():
+    return render_template('admin_dash.html')
+
+options_data = {
+    'A': ['Option A1', 'Option A2', 'Option A3'],
+    'B': ['Option B1', 'Option B2', 'Option B3'],
+    'C': ['Option C1', 'Option C2', 'Option C3']
+}
+
+@app.route('/update_hod', methods=['GET', 'POST'])
+def update_hod():
+    faculty = Faculty()
+    admin = Admin()
+
+    departments_data = {}
+    departments = faculty.return_departments()
+
+    for department in departments:
+        faculty_list = faculty.get_faculty_list(department[0])  # department[0] returns the id for the department
+        # The key of the dictionary is the department name and id, the value is the faculty list of that department
+        faculty_ids = [(li[0], li[2]+' '+li[3]) for li in faculty_list]
+        departments_data[department[1] + '  (' + department[0] + ')'] = faculty_ids    
+        
+    selected_option = None
+    selected_sub_option = None
+
+    message = None
+    if request.method == 'POST':
+        selected_option = request.form.get('option')
+        selected_sub_option = request.form.get('sub_option')
+        if selected_sub_option != None:
+            res = admin.promote_to_hod(selected_sub_option)        # The faculty id of the selected sub-option
+            if res:
+                message = "Department Head Updated Successfully"
+            else:
+                message = "Unable to Update HoD"
+
+    return render_template('update_hod.html', departments_data = departments_data, message = message,
+                            selected_option = selected_option, selected_sub_option = selected_sub_option)
