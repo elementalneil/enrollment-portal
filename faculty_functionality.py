@@ -99,3 +99,18 @@ class Faculty:
         connection.close()
 
         return rows
+    
+
+    def get_non_fa_faculties(self):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT * FROM Faculty WHERE id NOT IN (SELECT fid FROM FacultyAdvisor)')
+        rows = res.fetchall()
+
+        print(rows)
+
+        cursor.close()
+        connection.close()
+
+        return rows

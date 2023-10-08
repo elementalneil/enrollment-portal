@@ -51,7 +51,7 @@ def initialize():
 
                     CREATE TABLE IF NOT EXISTS FacultyAdvisor (
                         fid VARCHAR(9) PRIMARY KEY NOT NULL,
-                        batch INTEGER NOT NULL,
+                        batch INTEGER NOT NULL CHECK(batch >= 1900 AND batch <= 2100),
 
                         FOREIGN KEY(fid) REFERENCES Faculty(id)
                     );

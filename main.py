@@ -195,3 +195,22 @@ def update_hod():
 
     return render_template('update_hod.html', departments_data = departments_data, message = message,
                             selected_option = selected_option, selected_sub_option = selected_sub_option)
+
+
+@app.route('/elevate_faculty', methods = ['GET', 'POST'])
+def elevate_faculty():
+    admin = Admin()
+    available_years = admin.get_batch_years()
+
+    faculty = Faculty()
+    faculty_list = faculty.get_non_fa_faculties()
+
+    message = None
+    if request.method == 'POST':
+        faculty_id = request.form['faculty_id']
+        batch_year = request.form['batch']
+
+        message = admin.elevate_faculty(faculty_id, batch_year)
+
+    return render_template('elevate_faculty.html', message = message,
+                           years = available_years, faculty_list = faculty_list)

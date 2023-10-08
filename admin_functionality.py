@@ -1,5 +1,6 @@
 import sqlite3
 import bcrypt
+import datetime
 
 class Admin:
     def register(self, admin_data):
@@ -115,7 +116,54 @@ class Admin:
 
     # elevates a faculty with give faculty_id to hod of the given batch
     def elevate_faculty(self, faculty_id, batch):
-        return False
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT COUNT(*) FROM Faculty WHERE id = ?', (faculty_id, ))
+        count = res.fetchone()[0]
+
+        return_str = ""
+        if count == 0:
+            return_str = "Faculty ID is incorrect"
+        else:
+            # Check if already FA of some batch
+            # Check if FA of that batch already exists
+            # If none then insert
+            res = cursor.execute('SELECT COUNT(*) FROM FacultyAdvisor WHERE fid = ?', (faculty_id, ))
+            count = res.fetchone()[0]
+            if count != 0:
+                return_str = "Faculty is already an FA"
+            else:
+                res = cursor.execute('SELECT COUNT(*) FROM FacultyAdvisor WHERE batch = ?', (batch, ))
+                count = res.fetchone()[0]
+                if count != 0:
+                    return_str = "There is already an FA for this batch"
+                else:
+                    cursor.execute('INSERT INTO FacultyAdvisor VALUES (?, ?)', (faculty_id, batch))
+                    connection.commit()
+                    return_str = "Faculty Advisor Created Successfully"
+
+        cursor.close()
+        connection.close()
+        return return_str
+    
+
+    def get_batch_years(self):
+        current_year = datetime.datetime.now().year
+
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT batch FROM FacultyAdvisor')
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        all_years = set([year for year in range(current_year - 4, current_year + 1)])
+        set_years = set([row[0] for row in rows])
+
+        return list(all_years.difference(set_years))
 
 
 def post_login(admin_obj):
@@ -154,8 +202,6 @@ def post_login(admin_obj):
         return
 
     
-
-
 def __main__():
     admin_data = {}
 

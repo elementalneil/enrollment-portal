@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Head of Department</title>
+    <title>Set Faculty Advisor</title>
     <style>
         body {
             background-color: #f4f4f4;
@@ -77,10 +77,10 @@
     {% include 'navbar.html' %}
     <div class="external-container">
         <div class="container">
-            <h1>Update Department Head</h1>
+            <h1>Set Faculty Advisor</h1>
 
             {% if message %}
-                {% if message == 'Department Head Updated Successfully' %}
+                {% if message == 'Faculty Advisor Created Successfully' %}
                     <div class = "success_message"><p>{{ message }}</p></div>
                 {% else %}
                     <div class = "error_message"><p>{{ message }}</p></div>
@@ -88,28 +88,22 @@
             {% endif %}
 
             <form method="post">
-                <label for="option">Select Department:</label>
-                <select id="option" name="option">
-                    {% for department in departments_data %}
-                        <option value="{{department}}">{{department}}</option>
+                <label for="option">Select Faculty:</label>
+                <select id="option" name="faculty_id">
+                    {% for faculty in faculty_list %}
+                        <option value="{{faculty[0]}}">{{faculty[2] + ' ' + faculty[3]}}</option>
+                    {% endfor %}
+                </select>
+                <label for="option">Select Batch:</label>
+                <select id="option" name="batch">
+                    {% for year in years %}
+                        <option value="{{year}}">{{year}}</option>
                     {% endfor %}
                 </select>
                 {% if not selected_option %}
                     <button type="submit">Confirm</button>
                 {% endif %}
             </form>
-    
-            {% if selected_option %}
-            <form method="post">
-                <label for="sub_option">Select new Head:</label>
-                <select id="sub_option" name="sub_option">
-                    {% for sub_option in departments_data[selected_option] %}
-                    <option value="{{ sub_option[0] }}">{{ sub_option[1] + '  (' + sub_option[0] + ')' }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Confirm</button>
-            </form>
-            {% endif %}
         </div>
     </div>
 </body>
