@@ -29,7 +29,7 @@ class Student:
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
 
             cursor.execute('INSERT INTO Student VALUES (?, ?, ?, ?, ?, ?, ?, ?)', (
-                student_data['id'], hashed_password, student_data['fname'], 
+                student_data['id'].lower(), hashed_password, student_data['fname'], 
                 student_data['lname'], student_data['email'], student_data['contact'],
                 student_data['batch'], student_data['department_id']
             ))
@@ -46,6 +46,7 @@ class Student:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
+        student_id = student_id.lower()
         res = cursor.execute('SELECT * FROM Student WHERE id = ?', (student_id, ))
         row = res.fetchone()
 

@@ -33,7 +33,7 @@ def login_admin():
             session['id'] = admin_id
             session['user_type'] = 'admin'
             session['username'] = admin.get_details(admin_id)[2]      # 2nd index contains fname
-            return redirect(url_for('index'))
+            return redirect(url_for('admin_dash'))
         else:
             error = return_message
 

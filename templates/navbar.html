@@ -50,6 +50,9 @@
 <div class="navbar">
     <div class="navbar-buttons">
         <a href="{{ url_for('index') }}">Home</a>
+        {% if 'id' in session %}
+            <a href="{{ url_for('admin_dash') }}">Dashboard</a>
+        {% endif %}
     </div>
     <div class="login-status">
         {% if 'id' in session %}

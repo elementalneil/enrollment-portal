@@ -21,7 +21,7 @@ class Admin:
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
 
             cursor.execute('INSERT INTO Admin VALUES (?, ?, ?, ?, ?, ?)', (
-                admin_data['id'], hashed_password, admin_data['fname'], 
+                admin_data['id'].lower(), hashed_password, admin_data['fname'], 
                 admin_data['lname'], admin_data['email'], admin_data['contact']
             ))
 
@@ -35,6 +35,7 @@ class Admin:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
+        admin_id = admin_id.lower()
         res = cursor.execute('SELECT * FROM Admin WHERE id = ?', (admin_id, ))
         row = res.fetchone()
 
