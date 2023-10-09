@@ -214,3 +214,33 @@ def elevate_faculty():
 
     return render_template('elevate_faculty.html', message = message,
                            years = available_years, faculty_list = faculty_list)
+
+
+@app.route('/create_course', methods = ['GET', 'POST'])
+def create_course():
+    faculty = Faculty()
+    admin = Admin()
+
+    departments_data = {}
+    departments = faculty.return_departments()
+
+    for department in departments:
+        faculty_list = faculty.get_faculty_list(department[0])  # department[0] returns the id for the department
+        # The key of the dictionary is the department name and id, the value is the faculty list of that department
+        faculty_ids = [(li[0], li[2]+' '+li[3]) for li in faculty_list]
+        departments_data[department[1] + '  (' + department[0] + ')'] = faculty_ids    
+        
+    department_string = None
+    faculty_id = None
+
+    res = None
+    if request.method == 'POST':
+        department_string = request.form.get('option')
+        faculty_id = request.form.get('sub_option')
+        if faculty_id != None:
+            course_id = request.form.get('course_id')
+            course_name = request.form.get('course_name')
+            res = admin.create_course(course_id, course_name, faculty_id) 
+
+    return render_template('create_course.html', departments_data = departments_data, message = res,
+                            department_string = department_string, faculty_id = faculty_id)

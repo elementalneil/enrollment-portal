@@ -56,6 +56,7 @@ class Admin:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
+        admin_id = admin_id.lower()
         res = cursor.execute('SELECT * FROM Admin WHERE id = ?', (admin_id, ))
         row = res.fetchone()
 
@@ -66,6 +67,8 @@ class Admin:
         
 
     def create_department(self, dept_data):
+        dept_data['hod_id'] = dept_data['hod_id'].lower()
+
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
@@ -98,10 +101,9 @@ class Admin:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
+        faculty_id = faculty_id.lower()
         res = cursor.execute('SELECT department_id FROM Faculty WHERE id = ?', (faculty_id, ))
         department_id = res.fetchone()[0]
-
-        print(department_id)
 
         return_val = False
         if faculty_id != None:
@@ -120,6 +122,7 @@ class Admin:
         connection = sqlite3.connect("Server.db")
         cursor = connection.cursor()
 
+        faculty_id = faculty_id.lower()
         res = cursor.execute('SELECT COUNT(*) FROM Faculty WHERE id = ?', (faculty_id, ))
         count = res.fetchone()[0]
 
@@ -167,6 +170,29 @@ class Admin:
         return list(all_years.difference(set_years))
 
 
+    def create_course(self, id, name, faculty_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        faculty_id = faculty_id.lower()
+        cursor.execute('SELECT COUNT(*) FROM Faculty WHERE id = ?', (faculty_id, ))
+        count = cursor.fetchone()[0]
+
+        return_str = ""
+        if count == 0:
+            return_str = "Faculty Id is Incorrect"
+        else:
+            cursor.execute('INSERT INTO Course VALUES(?, ?, ?)', (id, name, faculty_id))
+            connection.commit()
+            return_str = "Course Created Successfully"
+
+        cursor.close()
+        connection.close()
+
+        return return_str
+
+
+
 def post_login(admin_obj):
     if admin_obj is None:
         return
@@ -175,7 +201,8 @@ def post_login(admin_obj):
                        Press 1 to Create Department
                        Press 2 to View Departments
                        Press 3 to Create a Faculty Advisor
-                       Press 4 to Exit
+                       Press 4 to Create a Course
+                       Press 5 to Exit
                        Enter Choice: '''))
     
     if choice == 1:
@@ -197,6 +224,14 @@ def post_login(admin_obj):
 
         result = admin_obj.elevate_faculty(faculty_id, batch)
         print(result)
+
+    elif choice == 4:
+        print('\nEnter Details')
+        course_id = input('Course ID: ')
+        course_name = input('Course Name: ')
+        faculty = input('Faculty ID: ')
+
+        result = admin_obj.create_course(course_id, course_name, faculty)
 
     else:
         print('Aborted by User')
