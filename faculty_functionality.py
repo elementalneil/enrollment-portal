@@ -131,7 +131,28 @@ class Faculty:
             return True
         
 
-    
+    def get_active_registrations(self, faculty_id):
+        if not self.is_advisor(faculty_id):
+            return 'Should be a Faculty Advisor'
+        
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT batch FROM FacultyAdvisor WHERE fid = ?', (faculty_id, ))
+        batch = res.fetchone()[0]
+
+        query = '''
+            SELECT a.student_id, s.fname || ' ' || s.lname, a.course_id, c.cname, f.fname || ' ' || f.lname
+            FROM Application a 
+            JOIN Student s ON a.student_id = s.id
+            JOIN Course c ON a.course_id = c.cid
+            JOIN Faculty f ON c.faculty = f.id
+            WHERE s.batch = ?;
+        '''
+        res = cursor.execute(query, (batch, ))
+        rows = res.fetchall()
+
+        return rows
 
 
     def accept_registration(self, course_id, student_id):
@@ -146,10 +167,10 @@ class Faculty:
         if count == 0:
             return_str = 'Incorrect Application Details'
         else:
-            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?')
+            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?', (course_id, student_id))
             cursor.execute('INSERT INTO Accepted VALUES(?, ?)', (course_id, student_id))
             connection.commit()
-            return_str('Registration Accepted')
+            return_str = 'Registration Accepted'
 
         cursor.close()
         connection.close()
@@ -169,10 +190,10 @@ class Faculty:
         if count == 0:
             return_str = 'Incorrect Application Details'
         else:
-            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?')
+            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?', (course_id, student_id))
             cursor.execute('INSERT INTO Rejected VALUES(?, ?)', (course_id, student_id))
             connection.commit()
-            return_str('Registration Rejected')
+            return_str = 'Registration Rejected'
 
         cursor.close()
         connection.close()

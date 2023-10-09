@@ -126,7 +126,7 @@ def register_student():
                 session['id'] = data['id'].lower()
                 session['user_type'] = 'student'
                 session['username'] = data['fname']
-                return redirect(url_for('index'))
+                return redirect(url_for('student_dash'))
             else:
                 error = return_message
 
@@ -147,7 +147,7 @@ def login_student():
             session['id'] = student_id.lower()
             session['user_type'] = 'student'
             session['username'] = student.get_details(student_id)[2]      # 2nd index contains fname
-            return redirect(url_for('index'))
+            return redirect(url_for('student_dash'))
         else:
             error = return_message
 
@@ -302,3 +302,30 @@ def active_registrations():
         return redirect(url_for('login_faculty'))
     
     faculty = Faculty()
+    registrations = faculty.get_active_registrations(faculty_id)
+
+    return render_template('active_registrations.html', registrations = registrations)
+
+
+@app.route('/accept_registration', methods = ['GET', 'POST'])
+def accept_registration():
+    if request.method == 'POST':
+        student_id = request.form['student_id']
+        course_id = request.form['course_id']
+
+        faculty = Faculty()
+        faculty.accept_registration(course_id, student_id)
+
+    return redirect(url_for('active_registrations'))
+
+
+@app.route('/reject_registration', methods = ['GET', 'POST'])
+def reject_registration():
+    if request.method == 'POST':
+        student_id = request.form['student_id']
+        course_id = request.form['course_id']
+
+        faculty = Faculty()
+        faculty.reject_registration(course_id, student_id)
+
+    return redirect(url_for('active_registrations'))
