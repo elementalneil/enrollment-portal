@@ -109,9 +109,72 @@ class Faculty:
         res = cursor.execute('SELECT * FROM Faculty WHERE id NOT IN (SELECT fid FROM FacultyAdvisor)')
         rows = res.fetchall()
 
-        print(rows)
-
         cursor.close()
         connection.close()
 
         return rows
+    
+
+    def is_advisor(self, faculty_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT COUNT(*) FROM FacultyAdvisor WHERE fid = ?', (faculty_id, ))
+        count = res.fetchone()[0]
+
+        cursor.close()
+        connection.close()
+
+        if count == 0:
+            return False
+        else:
+            return True
+        
+
+    
+
+
+    def accept_registration(self, course_id, student_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT COUNT(*) FROM Application WHERE course_id = ? AND student_id = ?', 
+                             (course_id, student_id))
+        count = res.fetchone()[0]
+
+        return_str = ""
+        if count == 0:
+            return_str = 'Incorrect Application Details'
+        else:
+            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?')
+            cursor.execute('INSERT INTO Accepted VALUES(?, ?)', (course_id, student_id))
+            connection.commit()
+            return_str('Registration Accepted')
+
+        cursor.close()
+        connection.close()
+
+        return return_str
+    
+
+    def reject_registration(self, course_id, student_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        res = cursor.execute('SELECT COUNT(*) FROM Application WHERE course_id = ? AND student_id = ?', 
+                             (course_id, student_id))
+        count = res.fetchone()[0]
+
+        return_str = ""
+        if count == 0:
+            return_str = 'Incorrect Application Details'
+        else:
+            cursor.execute('DELETE FROM Application WHERE course_id = ? AND student_id = ?')
+            cursor.execute('INSERT INTO Rejected VALUES(?, ?)', (course_id, student_id))
+            connection.commit()
+            return_str('Registration Rejected')
+
+        cursor.close()
+        connection.close()
+
+        return return_str

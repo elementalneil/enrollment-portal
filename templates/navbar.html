@@ -51,7 +51,19 @@
     <div class="navbar-buttons">
         <a href="{{ url_for('index') }}">Home</a>
         {% if 'id' in session %}
+            {% if session['user_type'] == 'admin' %}
             <a href="{{ url_for('admin_dash') }}">Dashboard</a>
+            {% endif %}
+
+            {% if session['user_type'] == 'student' %}
+            <a href="{{ url_for('student_dash') }}">Dashboard</a>
+            {% endif %}
+
+            {% if session['user_type'] == 'faculty' %}
+                {% if session['is_advisor'] %}
+                    <a href="{{ url_for('active_registrations') }}">Active Registrations</a>
+                {% endif %}
+            {% endif %}
         {% endif %}
     </div>
     <div class="login-status">

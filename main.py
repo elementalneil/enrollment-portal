@@ -30,7 +30,7 @@ def login_admin():
 
         return_message = admin.admin_login(admin_id, password)
         if return_message == 'Successfully Logged In':
-            session['id'] = admin_id
+            session['id'] = admin_id.lower()
             session['user_type'] = 'admin'
             session['username'] = admin.get_details(admin_id)[2]      # 2nd index contains fname
             return redirect(url_for('admin_dash'))
@@ -62,7 +62,7 @@ def register_faculty():
         else:
             return_message = faculty.register(data)
             if return_message == "Successfully Registered":
-                session['id'] = data['id']
+                session['id'] = data['id'].lower()
                 session['user_type'] = 'faculty'
                 session['username'] = data['fname']
                 return redirect(url_for('index'))
@@ -81,11 +81,18 @@ def login_faculty():
         faculty_id = request.form['username']
         password = request.form['password']
 
+        faculty_id = faculty_id.lower()
         return_message = faculty.faculty_login(faculty_id, password)
         if return_message == 'Successfully Logged In':
             session['id'] = faculty_id
             session['user_type'] = 'faculty'
             session['username'] = faculty.get_details(faculty_id)[2]      # 2nd index contains fname
+
+            if faculty.is_advisor(faculty_id):
+                session['is_advisor'] = True
+            else:
+                session['is_advisor'] = False
+                
             return redirect(url_for('index'))
         else:
             error = return_message
@@ -116,7 +123,7 @@ def register_student():
         else:
             return_message = student.register(data)
             if return_message == "Successfully Registered":
-                session['id'] = data['id']
+                session['id'] = data['id'].lower()
                 session['user_type'] = 'student'
                 session['username'] = data['fname']
                 return redirect(url_for('index'))
@@ -137,7 +144,7 @@ def login_student():
 
         return_message = student.student_login(student_id, password)
         if return_message == 'Successfully Logged In':
-            session['id'] = student_id
+            session['id'] = student_id.lower()
             session['user_type'] = 'student'
             session['username'] = student.get_details(student_id)[2]      # 2nd index contains fname
             return redirect(url_for('index'))
@@ -266,3 +273,32 @@ def course_register():
 
     return render_template('course_register.html', message = message,
                            courses = available_courses)
+
+
+@app.route('/student_dash')
+def student_dash():
+    student_id = None
+    if 'id' in session and session['user_type'] == 'student':
+        student_id = session['id']
+    else:
+        return redirect(url_for('login_student'))
+    
+    student = Student()
+    
+    applied_courses = student.get_applied_courses(student_id)
+    accepted_courses = student.get_accepted_courses(student_id)
+    rejected_courses = student.get_rejected_courses(student_id)
+
+    return render_template('student_dash.html', applied_courses = applied_courses, 
+                           accepted_courses = accepted_courses, rejected_courses = rejected_courses)
+
+
+@app.route('/active_registrations')
+def active_registrations():
+    faculty_id = None
+    if 'id' in session and session['user_type'] == 'faculty' and session['is_advisor']:
+        faculty_id = session['id']        
+    else:
+        return redirect(url_for('login_faculty'))
+    
+    faculty = Faculty()

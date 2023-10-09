@@ -132,6 +132,8 @@ class Student:
                 connection.commit()
                 return_str = "Registration Request Successful"
 
+        cursor.close()
+        connection.close()
         return return_str
     
 
@@ -151,10 +153,76 @@ class Student:
         res = cursor.execute(query, (student_id, student_id, student_id))
         rows = res.fetchall()
 
+        cursor.close()
+        connection.close()
+
+        return rows
+    
+
+    def get_applied_courses(self, student_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT a.course_id, c.cname, c.faculty, f.fname || ' ' || f.lname AS full_name
+            FROM Application a 
+            JOIN Course c ON a.course_id = c.cid
+            JOIN Faculty f ON c.faculty = f.id
+            WHERE a.student_id = ?
+        '''
+        res = cursor.execute(query, (student_id, ))
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return rows
+    
+
+    def get_accepted_courses(self, student_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT a.course_id, c.cname, c.faculty, f.fname || ' ' || f.lname AS full_name
+            FROM Accepted a 
+            JOIN Course c ON a.course_id = c.cid
+            JOIN Faculty f ON c.faculty = f.id
+            WHERE a.student_id = ?
+        '''
+        res = cursor.execute(query, (student_id, ))
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return rows
+    
+
+    def get_rejected_courses(self, student_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT a.course_id, c.cname, c.faculty, f.fname || ' ' || f.lname AS full_name
+            FROM Rejected a 
+            JOIN Course c ON a.course_id = c.cid
+            JOIN Faculty f ON c.faculty = f.id
+            WHERE a.student_id = ?
+        '''
+        res = cursor.execute(query, (student_id, ))
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
         return rows
     
 
 def __main__():
+    # student = Student()
+    # print(student.get_rejected_courses('m210655ca'))
     pass
+
 if __name__ == '__main__':
     __main__()
