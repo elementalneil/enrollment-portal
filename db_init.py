@@ -73,7 +73,7 @@ def initialize():
                         FOREIGN KEY(student_id) REFERENCES Student(id)
                     );
 
-                    CREATE TABLE IF NOT EXISTS Enrolled (
+                    CREATE TABLE IF NOT EXISTS Rejected (
                         course_id VARCHAR(7) NOT NULL,
                         student_id VARCHAR(9) NOT NULL,
 

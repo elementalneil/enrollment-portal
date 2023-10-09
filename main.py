@@ -244,3 +244,25 @@ def create_course():
 
     return render_template('create_course.html', departments_data = departments_data, message = res,
                             department_string = department_string, faculty_id = faculty_id)
+
+
+@app.route('/course_register', methods = ['GET', 'POST'])
+def course_register():
+    student_id = None
+    if 'id' in session and session['user_type'] == 'student':
+        student_id = session['id']
+    else:
+        return redirect(url_for('login_student'))
+
+
+    student = Student()
+
+    available_courses = student.get_available_courses(session['id'])
+
+    message = None
+    if request.method == 'POST':
+        course_id = request.form['course_id']
+        message = student.enroll(student_id, course_id)
+
+    return render_template('course_register.html', message = message,
+                           courses = available_courses)

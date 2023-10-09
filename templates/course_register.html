@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Faculty Advisor</title>
+    <title>Register for Course</title>
     <style>
         body {
             background-color: #f4f4f4;
@@ -77,10 +77,10 @@
     {% include 'navbar.html' %}
     <div class="external-container">
         <div class="container">
-            <h1>Set Faculty Advisor</h1>
+            <h1>Course Registration</h1>
 
             {% if message %}
-                {% if message == 'Faculty Advisor Created Successfully' %}
+                {% if message == 'Registration Request Successful' %}
                     <div class = "success_message"><p>{{ message }}</p></div>
                 {% else %}
                     <div class = "error_message"><p>{{ message }}</p></div>
@@ -88,20 +88,13 @@
             {% endif %}
 
             <form method="post">
-                <label for="option">Select Faculty:</label>
-                <select id="option" name="faculty_id">
-                    {% for faculty in faculty_list %}
-                        <option value="{{faculty[0]}}">{{faculty[2] + ' ' + faculty[3]}}</option>
+                <label for="option">Select Course:</label>
+                <select id="option" name="course_id">
+                    {% for course in courses %}
+                        <option value="{{course[0]}}">{{course[1] + ' (' + course[0] + ')'}}</option>
                     {% endfor %}
                 </select>
-                <label for="option">Select Batch:</label>
-                <select id="option" name="batch">
-                    {% for year in years %}
-                        <option value="{{year}}">{{year}}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Confirm</button>
-                
+                <button type="submit">Register</button>
             </form>
         </div>
     </div>

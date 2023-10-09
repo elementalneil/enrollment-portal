@@ -87,3 +87,74 @@ class Student:
         connection.close()
 
         return row
+    
+
+    def enroll(self, student_id, course_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        # Student ID should exist
+        # Course ID should exist
+        # Registration shouldn't already exist in either of the tables: Application, Accepted, Rejected
+
+        res = cursor.execute('SELECT COUNT(*) FROM Student WHERE id = ?', (student_id, ))
+        student_count = res.fetchone()[0]
+
+        res = cursor.execute('SELECT COUNT(*) FROM Course WHERE cid = ?', (course_id, ))
+        course_count = res.fetchone()[0]
+
+        return_str = ""
+        if student_count == 0:
+            return_str = "Student ID is Incorrect"
+        elif course_count == 0:
+            return_str = "Course ID is Incorrect"
+        else:
+            res = cursor.execute('SELECT COUNT(*) FROM Accepted WHERE course_id = ? AND student_id = ?', 
+                                 (course_id, student_id))
+            count1 = res.fetchone()[0]
+
+            res = cursor.execute('SELECT COUNT(*) FROM Rejected WHERE course_id = ? AND student_id = ?', 
+                                 (course_id, student_id))
+            count2 = res.fetchone()[0]
+
+            res = cursor.execute('SELECT COUNT(*) FROM Application WHERE course_id = ? AND student_id = ?', 
+                                 (course_id, student_id))
+            count3 = res.fetchone()[0]
+
+            if count1 != 0:
+                return_str = "You are Already Registered into this Course"
+            elif count2 != 0:
+                return_str = "Your Application for this Course is Rejected"
+            elif count3 != 0:
+                return_str = "Your Application in this Course is Processing"
+            else:
+                res = cursor.execute('INSERT INTO APPLICATION VALUES(?, ?)', (course_id, student_id))
+                connection.commit()
+                return_str = "Registration Request Successful"
+
+        return return_str
+    
+
+    def get_available_courses(self, student_id):
+        connection = sqlite3.connect("Server.db")
+        cursor = connection.cursor()
+
+        # Test this query thoroughly later
+        query = '''
+            SELECT c.cid, c.cname, c.faculty
+            FROM Course c
+            LEFT JOIN Application a ON c.cid = a.course_id AND a.student_id = ?
+            LEFT JOIN Accepted ac ON c.cid = ac.course_id AND ac.student_id = ?
+            LEFT JOIN Rejected r ON c.cid = r.course_id AND r.student_id = ?
+            WHERE a.course_id IS NULL AND ac.course_id IS NULL AND r.course_id IS NULL;
+        '''
+        res = cursor.execute(query, (student_id, student_id, student_id))
+        rows = res.fetchall()
+
+        return rows
+    
+
+def __main__():
+    pass
+if __name__ == '__main__':
+    __main__()
