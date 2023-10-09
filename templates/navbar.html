@@ -63,6 +63,7 @@
                 {% if session['is_advisor'] %}
                     <a href="{{ url_for('active_registrations') }}">Active Registrations</a>
                 {% endif %}
+                <a href="{{ url_for('faculty_course_list') }}">My Courses</a>
             {% endif %}
         {% endif %}
     </div>

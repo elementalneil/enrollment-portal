@@ -199,3 +199,68 @@ class Faculty:
         connection.close()
 
         return return_str
+    
+
+    # Returns a dictionary containing course_id, course_name, faculty_id, faculty_name, and student_list 
+    def course_details(self, course_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT c.cid, c.cname, c.faculty, f.fname || ' ' || f.lname
+            FROM course c
+            JOIN faculty f ON c.faculty = f.id
+            WHERE c.cid = ?;
+        '''
+        res = cursor.execute(query, (course_id, ))
+        row = res.fetchone()
+
+        data = {}
+        data['course_id'] = row[0]
+        data['course_name'] = row[1]
+        data['faculty_id'] = row[2]
+        data['faculty_name'] = row[3]
+
+        query = '''
+            SELECT s.id, s.fname || ' ' || s.lname, s.email, s.batch
+            FROM Accepted a
+            JOIN Student s ON a.student_id = s.id
+            WHERE a.course_id = ?;
+        '''
+        res = cursor.execute(query, (course_id, ))
+        rows = res.fetchall()
+
+        data['student_list'] = rows
+
+        cursor.close()
+        connection.close()
+
+        return data
+    
+
+    def get_course_list(self, faculty_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT cid, cname, (SELECT COUNT(*) FROM Accepted a WHERE a.course_id = c.cid)
+            FROM course c
+            WHERE faculty = ?
+        '''
+
+        res = cursor.execute(query, (faculty_id, ))
+        rows = res.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return rows
+    
+
+def __main__():
+    # faculty = Faculty()
+    # print(faculty.course_details('CS1010D'))
+    pass
+
+if __name__ == '__main__':
+    __main__()

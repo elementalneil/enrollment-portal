@@ -146,7 +146,7 @@ def login_student():
         if return_message == 'Successfully Logged In':
             session['id'] = student_id.lower()
             session['user_type'] = 'student'
-            session['username'] = student.get_details(student_id)[2]      # 2nd index contains fname
+            session['username'] = student.get_details(student_id.lower())[2]      # 2nd index contains fname
             return redirect(url_for('student_dash'))
         else:
             error = return_message
@@ -329,3 +329,33 @@ def reject_registration():
         faculty.reject_registration(course_id, student_id)
 
     return redirect(url_for('active_registrations'))
+
+
+@app.route('/faculty_course_list')
+def faculty_course_list():
+    faculty_id = None
+    if 'id' in session and session['user_type'] == 'faculty':
+        faculty_id = session['id']
+    else:
+        return redirect(url_for('index'))
+    
+    faculty = Faculty()
+    course_list = faculty.get_course_list(faculty_id)
+
+    return render_template('faculty_course_list.html', courses = course_list)
+
+
+@app.route('/course/<course_id>')
+def course_details(course_id):
+    if 'id' in session:
+        if session['user_type'] == 'faculty' or session['user_type'] == 'admin':
+            pass
+        else:
+            return redirect(url_for('index'))
+    else:
+        return redirect(url_for('index'))
+
+    faculty = Faculty()
+    data = faculty.course_details(course_id)
+
+    return render_template('course_detail.html', data = data)
