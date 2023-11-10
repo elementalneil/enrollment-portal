@@ -359,3 +359,41 @@ def course_details(course_id):
     data = faculty.course_details(course_id)
 
     return render_template('course_detail.html', data = data)
+
+
+@app.route('/faculty_list')
+def faculty_list():
+    if 'id' in session:
+        if session['user_type'] == 'admin':
+            pass
+        else:
+            return redirect(url_for('index'))
+    else:
+        return redirect(url_for('index'))
+    
+    faculty = Faculty()
+    data = faculty.get_all_faculties()
+
+    return render_template('faculty_list.html', data = data)
+
+
+@app.route('/delete_faculty', methods = ['GET', 'POST'])
+def delete_faculty():
+    if 'id' in session:
+        if session['user_type'] == 'admin':
+            pass
+        else:
+            return redirect(url_for('index'))
+    else:
+        return redirect(url_for('index'))
+    
+    faculty = Faculty()
+    message = faculty.delete_faculty(request.form['faculty_id'])
+
+    status = None
+    if message == 'Faculty Deleted Successfully':
+        status = 'Success'
+    else:
+        status = 'Failed'
+
+    return render_template('faculty_deleted_message.html', message = message, status = status)

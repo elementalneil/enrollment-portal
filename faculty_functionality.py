@@ -257,10 +257,71 @@ class Faculty:
         return rows
     
 
+    def get_all_faculties(self):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT f.id, f.fname, f.lname, f.email, f.contact, d.dname 
+            FROM Faculty f JOIN Department d
+            ON f.department_id = d.did
+        '''
+    
+        res = cursor.execute(query)
+        rows = res.fetchall()
+
+        return rows
+    
+
+    def delete_faculty(self, faculty_id):
+        connection = sqlite3.connect('Server.db')
+        cursor = connection.cursor()
+
+        query = '''
+            SELECT COUNT(*) FROM Course WHERE faculty = ?
+        '''
+    
+        res = cursor.execute(query, (faculty_id, ))
+        count = res.fetchone()[0]
+
+        if count > 0:
+            return 'Faculty Teaches a Course'
+
+        query = '''
+            SELECT COUNT(*) FROM Department WHERE hod_id = ?
+        '''
+    
+        res = cursor.execute(query, (faculty_id, ))
+        count = res.fetchone()[0]
+
+        if count > 0:
+            return 'Faculty is HOD of a Department'
+        
+        query = '''
+            SELECT COUNT(*) FROM FacultyAdvisor WHERE fid = ?
+        '''
+    
+        res = cursor.execute(query, (faculty_id, ))
+        count = res.fetchone()[0]
+
+        if count > 0:
+            return 'Faculty is Faculty Advisor'
+        
+
+        query = '''
+            DELETE FROM Faculty WHERE id = ?
+        '''
+    
+        res = cursor.execute(query, (faculty_id, ))
+        connection.commit()
+        
+        return 'Faculty Deleted Successfully'
+
+
 def __main__():
-    # faculty = Faculty()
-    # print(faculty.course_details('CS1010D'))
-    pass
+    faculty = Faculty()
+    print(faculty.delete_faculty('cs569874e'))
+    # pass
 
 if __name__ == '__main__':
     __main__()
